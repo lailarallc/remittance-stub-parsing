@@ -1,0 +1,21 @@
+# Lailara LLC — Engagement config (DEMO). Canonical demo identity; demo: true so
+# the deploy guard ignores it. A real client run uses engagement.yml with the
+# client's own reference ledger and (if new formats) format_config_dir.
+client:
+  name: "Cinderhaven Provisions (demo)"
+engagement:
+  id: "CINDERHAVEN-DEMO"
+# data_as_of = the deduction ledger's data-window end (canonical Jan 2023 – Jan 2026).
+# report_date = when the reconciliation was authored; it is also the "as of now" the
+# dispute-window math measures against (2025 deductions -> days remaining to dispute as
+# of this date). Split from one conflated as_of_date (0.d). Never today's live clock.
+data_as_of: "2026-01-31"
+report_date: "2026-07-30"
+prepared_by: "Lailara LLC"
+demo: true
+basis:
+  dispute_window_days: 90
+  window_label: "90-day dispute window"
+reference_ledger: "data/cinderhaven_reference.json"
+# format_config_dir defaults to the built-in src/config; a client points this at
+# their own dir to add new remittance formats as config drop-ins.

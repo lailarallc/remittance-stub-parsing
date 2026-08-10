@@ -1,0 +1,27 @@
+name: golden
+
+# Gates the demo golden lock: regenerates the seed-42 demo stubs and runs the real
+# live compute path, asserting the exact aggregate figures the deployed case study
+# renders (and the ledger-foots invariant) so they cannot drift during the
+# client-mode conversion. Runs ONLY the golden (tests/test_demo_golden.py) — base
+# deps only (the package's own runtime + pytest), never lailara_engagement.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  golden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package + test deps
+        run: pip install -e ".[dev]"
+      - name: Demo golden lock
+        run: python -m pytest tests/test_demo_golden.py -q

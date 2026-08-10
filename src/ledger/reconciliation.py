@@ -17,35 +17,41 @@ ANNUAL_TRADE_SPEND = Decimal("3600000")  # ~$3.6M/yr
 TOTAL_CHARGEBACKS = 3357
 DISPUTE_WINDOW_DAYS = 90  # standard dispute window
 
-# End of the synthetic Cinderhaven data window — the most recent remittance
-# payment date across stubs/. Dispute-window math is measured as of this date
-# so the demo stays stable instead of drifting past every 2025-26 reference
-# date as the real calendar advances (which made every deduction read as
-# "0 days remaining" and future-dated stubs show an impossible >90 days).
-AS_OF_DATE = date(2026, 7, 30)
-
-
 def reconcile_stub(
     stub: RemittanceStub,
     reference_invoices: dict,
+    *,
+    dispute_window_days: int,
     stub_id: str = "",
-    as_of_date: date | None = None,
+    as_of_date: date,
 ) -> ReconciliationResult:
     """Reconcile a stub's deductions against Cinderhaven reference invoice data.
 
     Args:
         stub: The remittance stub to reconcile.
         reference_invoices: Dict mapping invoice_number -> {"amount": Decimal, "date": date}.
+        dispute_window_days: REQUIRED, keyword-only — the dispute window (days) the
+            "days remaining" math is measured against. Deliberately has no default:
+            this value also drives the rendered window label in the caller, and a
+            defaulted parameter is exactly how a caption ("45-day window") and its
+            math (a hardcoded 90) silently diverge. Forgetting to pass it is a loud
+            TypeError, not a wrong number. ``DISPUTE_WINDOW_DAYS`` is the standard
+            value callers pass when they have no per-engagement override.
         stub_id: Identifier for this stub. Defaults to check_number.
-        as_of_date: Date to calculate the dispute window from. Defaults to
-            AS_OF_DATE (the end of the data window), not the live calendar.
+        as_of_date: REQUIRED, keyword-only — the "as of now" date the dispute-window
+            "days remaining" is measured from (the reconciliation/report date, NOT the
+            data-window end). Deliberately has no default and no module-constant
+            fallback: like dispute_window_days it drives the math AND the caller's
+            rendered "computed as of" label, so a silent default is exactly how a
+            caption and its math diverge. Forgetting it is a loud TypeError, not a
+            wrong (and never-recomputed-against-the-live-calendar) number.
 
     Returns:
         ReconciliationResult with match status, matched/unmatched amounts,
         and days remaining in the dispute window.
     """
     effective_id = stub_id or stub.check_number
-    as_of = as_of_date or AS_OF_DATE
+    as_of = as_of_date
 
     matched_amount = Decimal("0")
     unmatched_amount = Decimal("0")
@@ -89,11 +95,13 @@ def reconcile_stub(
         deduction_date = deduction.deduction_date or stub.payment_date
         if deduction_date:
             days_elapsed = (as_of - deduction_date).days
-            # Clamp to [0, DISPUTE_WINDOW_DAYS]: a deduction dated after the
+            # Clamp to [0, dispute_window_days]: a deduction dated after the
             # as-of date must never report more than a full window remaining.
+            # The window is the caller-supplied value, NOT the module constant —
+            # so the split this feeds matches the window the caller labels.
             days_remaining = min(
-                DISPUTE_WINDOW_DAYS,
-                max(0, DISPUTE_WINDOW_DAYS - days_elapsed),
+                dispute_window_days,
+                max(0, dispute_window_days - days_elapsed),
             )
             if min_days_remaining is None or days_remaining < min_days_remaining:
                 min_days_remaining = days_remaining

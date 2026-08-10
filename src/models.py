@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class RetailerFormat(str, Enum):
@@ -53,9 +53,32 @@ class DeductionEntry(BaseModel):
     deduction_date: Optional[date] = None
 
 
+def retailer_display_name(retailer) -> str:
+    """Human-facing name for a stub's retailer, whether a built-in enum member
+    or a client plugin's string name."""
+    if isinstance(retailer, RetailerFormat):
+        return retailer.display_name
+    return str(retailer).replace("_", " ").title()
+
+
 class RemittanceStub(BaseModel):
-    retailer: RetailerFormat
+    # A built-in format is a RetailerFormat enum member (the demo path); a client
+    # plugin format that isn't a built-in is carried as its string name. The
+    # validator coerces known values to the enum so built-ins are unchanged.
+    retailer: RetailerFormat | str
     check_number: str
+
+    @field_validator("retailer", mode="before")
+    @classmethod
+    def _coerce_retailer(cls, v):
+        if isinstance(v, RetailerFormat):
+            return v
+        if isinstance(v, str):
+            try:
+                return RetailerFormat(v)
+            except ValueError:
+                return v
+        return v
     payment_date: Optional[date] = None
     gross_invoice: Decimal = Field(ge=0)
     net_cash: Decimal

@@ -243,3 +243,19 @@ When a decision is overturned:
 3. Note the link in both directions
 
 This preserves the history of why something is the way it is.
+
+---
+
+## 2026-08-08 — reference_ledger DATA_DIR hardcode: reviewed, accepted
+
+- **Decision** — Leave `app/routes/report.py` loading the reference ledger via the
+  `DATA_DIR` constant path rather than `config.reference_ledger`.
+- **Why** — Surfaced by the 0.d config-surface audit. Unlike `as_of_date` and
+  `dispute_window_days` (each fed a rendered label while a module constant fed the math —
+  a caption-vs-math divergence, now fixed), `reference_ledger` is a data-source path in
+  the same repo. `DATA_DIR/"cinderhaven_reference.json"` and `config.reference_ledger`
+  resolve to the same file; nothing can silently disagree with it, so it is not the same
+  defect class. Fixing it would be churn without risk reduction.
+- **Scope** — `app/routes/report.py` (demo web path). `client_mode.py` already reads
+  `config.reference_ledger`. Reviewed-and-accepted (Shawn, 2026-08-08) so it is not
+  re-litigated.

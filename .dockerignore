@@ -22,3 +22,9 @@ DECISIONS.md
 FAILURES.md
 docs/
 .claude/
+
+# --- lailara engagement scaffold ---
+client-data/
+client-output/
+engagement.yml
+engagement.yaml

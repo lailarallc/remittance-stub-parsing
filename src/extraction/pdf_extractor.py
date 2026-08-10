@@ -12,18 +12,20 @@ from pathlib import Path
 import pdfplumber
 import yaml
 
+from src.extraction.plugins import detect_plugin
 from src.models import DeductionEntry, RemittanceStub, RetailerFormat
 
 FORMAT_CONFIGS_DIR = Path(__file__).parent.parent / "config" / "format_configs"
 
-# Header patterns used to detect which retailer format a PDF is.
-# Checked in order; first match wins.
-_FORMAT_PATTERNS = [
-    ("WALMART INC.", RetailerFormat.WALMART),
-    ("COSTCO WHOLESALE", RetailerFormat.COSTCO),
-    ("UNFI --", RetailerFormat.UNFI),
-    ("KeHE DISTRIBUTORS", RetailerFormat.KEHE),
-]
+# Default table-header labels skipped across formats. A format config may override
+# with its own ``header_labels`` list; built-in configs rely on this default so
+# their behavior is unchanged.
+DEFAULT_HEADER_LABELS = {
+    "Invoice #", "Reason Code", "Description", "Amount",
+    "Ref #", "Code", "Inv Amount", "Deduction",
+    "Qty", "Unit $", "Total",
+    "PO #", "Cat",
+}
 
 
 def load_format_config(retailer: RetailerFormat) -> dict:
@@ -56,9 +58,12 @@ def detect_format(pdf_path: Path) -> RetailerFormat:
 
         first_page_text = pdf.pages[0].extract_text() or ""
 
-    for pattern, retailer_format in _FORMAT_PATTERNS:
-        if pattern in first_page_text:
-            return retailer_format
+    # Detection is config-driven via the plugin registry (each format config's
+    # header_pattern), not a hardcoded list. Built-in configs resolve to the
+    # RetailerFormat enum so the demo path is unchanged.
+    plugin = detect_plugin(first_page_text)
+    if plugin is not None:
+        return RetailerFormat(plugin.name)
 
     raise ValueError(
         f"Unrecognized remittance format in {pdf_path}. "
@@ -163,14 +168,10 @@ def _is_header_row(row: list, format_config: dict) -> bool:
     """
     if not row:
         return False
-    col_mapping = format_config.get("column_mapping", {})
-    # Known header labels for each format
-    header_labels = {
-        "Invoice #", "Reason Code", "Description", "Amount",
-        "Ref #", "Code", "Inv Amount", "Deduction",
-        "Qty", "Unit $", "Total",
-        "PO #", "Cat",
-    }
+    # A format config may declare its own header_labels; otherwise use the
+    # shared default (built-in formats rely on the default -> unchanged behavior).
+    labels = format_config.get("header_labels")
+    header_labels = set(labels) if labels else DEFAULT_HEADER_LABELS
     # If the first cell matches a known header label, it's a header row
     first_cell = (row[0] or "").strip()
     return first_cell in header_labels
@@ -267,6 +268,41 @@ def extract_stub_with_text(pdf_path: Path) -> tuple[RemittanceStub, str]:
         source_file=Path(path).name,
     )
     return stub, full_text
+
+
+def extract_with_plugin(pdf_path: Path, plugin) -> RemittanceStub:
+    """Extract a RemittanceStub using an explicit format plugin.
+
+    The client-mode entry point: a client format is a plugin (config drop-in),
+    which may not correspond to a built-in ``RetailerFormat``. The stub's
+    ``retailer`` is the plugin name (a string for a new client format, coerced to
+    the enum for a built-in). Uses the same shared header/totals/deduction parsers
+    as the built-in path, driven by the plugin's config.
+    """
+    path = Path(pdf_path)
+    config = plugin.format_config
+
+    with pdfplumber.open(str(path)) as pdf:
+        all_text_parts = [page.extract_text() or "" for page in pdf.pages]
+        all_tables = []
+        for page in pdf.pages:
+            all_tables.extend(page.extract_tables())
+
+    full_text = "\n".join(all_text_parts)
+    header = extract_header(all_text_parts[0] if all_text_parts else "", plugin.name)
+    totals = extract_totals(full_text)
+    deductions = extract_deductions(all_tables, config)
+
+    return RemittanceStub(
+        retailer=plugin.name,
+        check_number=header["check_number"],
+        payment_date=header["payment_date"],
+        gross_invoice=totals["gross_invoice"] or Decimal("0"),
+        net_cash=totals["net_cash"] or Decimal("0"),
+        payer_name=header["payer_name"],
+        deductions=deductions,
+        source_file=Path(path).name,
+    )
 
 
 def extract_stub(pdf_path: Path) -> RemittanceStub:

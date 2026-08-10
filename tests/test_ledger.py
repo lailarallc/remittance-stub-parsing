@@ -296,7 +296,9 @@ class TestReconciliation:
             "WM-100002": {"amount": Decimal("300.00"), "date": date(2025, 6, 1)},
         }
 
-        result = reconcile_stub(stub, reference, stub_id="rec-full")
+        result = reconcile_stub(stub, reference, dispute_window_days=DISPUTE_WINDOW_DAYS,
+                                as_of_date=date(2026, 7, 30),
+                                stub_id="rec-full")
 
         assert result.match_status == ReconciliationMatch.MATCHED
         assert result.matched_amount == Decimal("800.00")
@@ -314,7 +316,9 @@ class TestReconciliation:
             "WM-100001": {"amount": Decimal("500.00"), "date": date(2025, 6, 1)},
         }
 
-        result = reconcile_stub(stub, reference, stub_id="rec-none")
+        result = reconcile_stub(stub, reference, dispute_window_days=DISPUTE_WINDOW_DAYS,
+                                as_of_date=date(2026, 7, 30),
+                                stub_id="rec-none")
 
         assert result.match_status == ReconciliationMatch.UNMATCHED
         assert result.matched_amount == Decimal("0")
@@ -331,7 +335,9 @@ class TestReconciliation:
             "WM-100001": {"amount": Decimal("480.00"), "date": date(2025, 6, 1)},
         }
 
-        result = reconcile_stub(stub, reference, stub_id="rec-partial")
+        result = reconcile_stub(stub, reference, dispute_window_days=DISPUTE_WINDOW_DAYS,
+                                as_of_date=date(2026, 7, 30),
+                                stub_id="rec-partial")
 
         assert result.match_status == ReconciliationMatch.PARTIAL
         assert result.matched_amount == Decimal("480.00")  # min of the two
@@ -349,7 +355,9 @@ class TestReconciliation:
             "WM-100001": {"amount": Decimal("600.00"), "date": date(2025, 6, 1)},
         }
 
-        result = reconcile_stub(stub, reference, stub_id="rec-ref-bigger")
+        result = reconcile_stub(stub, reference, dispute_window_days=DISPUTE_WINDOW_DAYS,
+                                as_of_date=date(2026, 7, 30),
+                                stub_id="rec-ref-bigger")
 
         assert result.matched_amount == Decimal("500.00")  # full deduction
         assert result.unmatched_amount == Decimal("0")  # nothing recoverable
@@ -366,7 +374,9 @@ class TestReconciliation:
             "WM-100001": {"amount": Decimal("500.00"), "date": date(2025, 6, 1)},
         }
 
-        result = reconcile_stub(stub, reference, stub_id="rec-mixed")
+        result = reconcile_stub(stub, reference, dispute_window_days=DISPUTE_WINDOW_DAYS,
+                                as_of_date=date(2026, 7, 30),
+                                stub_id="rec-mixed")
 
         assert result.match_status == ReconciliationMatch.PARTIAL
         assert result.matched_amount == Decimal("500.00")
@@ -386,6 +396,7 @@ class TestReconciliation:
 
         result = reconcile_stub(
             stub, reference,
+            dispute_window_days=DISPUTE_WINDOW_DAYS,
             stub_id="rec-window",
             as_of_date=date(2025, 7, 1),
         )
@@ -406,11 +417,45 @@ class TestReconciliation:
         # 100 days elapsed — past the 90-day window
         result = reconcile_stub(
             stub, reference,
+            dispute_window_days=DISPUTE_WINDOW_DAYS,
             stub_id="rec-expired",
             as_of_date=date(2025, 9, 9),
         )
 
         assert result.dispute_window_days_remaining == 0
+
+    def test_dispute_window_split_tracks_the_supplied_window(self):
+        """A 60-day-old deduction is WITHIN a 90-day window (30 days left) but PAST
+        a 45-day one (0 days left). days-remaining — which drives the within/past
+        split in the caller — must be computed from the SUPPLIED window, not a
+        module default. This is the defect the required param closes: the caller
+        labeled the window from config while the split silently used a hardcoded
+        90 (see ENGAGEMENT-READY-CHECKLIST, remittance worked example)."""
+        stub = _make_stub(deductions=[("WM-100001", "22", "500.00")])
+        reference = {"WM-100001": {"amount": Decimal("500.00"), "date": date(2025, 6, 1)}}
+        # 2025-06-01 -> 2025-07-31 = 60 days elapsed.
+        within = reconcile_stub(stub, reference, dispute_window_days=90,
+                                stub_id="rec-90", as_of_date=date(2025, 7, 31))
+        past = reconcile_stub(stub, reference, dispute_window_days=45,
+                              stub_id="rec-45", as_of_date=date(2025, 7, 31))
+        assert within.dispute_window_days_remaining == 30   # 90 - 60 -> still disputable
+        assert past.dispute_window_days_remaining == 0      # 45 - 60 -> expired
+
+    def test_dispute_window_days_is_required(self):
+        """Omitting the window is a loud TypeError, not a silent default to 90 —
+        a defaulted param is exactly how the next caller re-introduces the
+        caption-vs-math divergence."""
+        stub = _make_stub(deductions=[("WM-100001", "22", "500.00")])
+        with pytest.raises(TypeError):
+            reconcile_stub(stub, {}, stub_id="rec-noarg")
+
+    def test_as_of_date_is_required(self):
+        """Omitting as_of_date is a loud TypeError, not a silent fallback to a module
+        constant (the AS_OF_DATE hardcode removed in the 0.d split) — same fail-closed
+        reasoning as dispute_window_days."""
+        stub = _make_stub(deductions=[("WM-100001", "22", "500.00")])
+        with pytest.raises(TypeError):
+            reconcile_stub(stub, {}, dispute_window_days=DISPUTE_WINDOW_DAYS)
 
     def test_details_describe_each_deduction(self):
         """Details list has one entry per deduction describing the match."""
@@ -424,7 +469,9 @@ class TestReconciliation:
             "WM-100001": {"amount": Decimal("500.00"), "date": date(2025, 6, 1)},
         }
 
-        result = reconcile_stub(stub, reference, stub_id="rec-details")
+        result = reconcile_stub(stub, reference, dispute_window_days=DISPUTE_WINDOW_DAYS,
+                                as_of_date=date(2026, 7, 30),
+                                stub_id="rec-details")
 
         assert len(result.details) == 2
         assert "MATCHED" in result.details[0]
@@ -433,7 +480,8 @@ class TestReconciliation:
     def test_uses_check_number_when_no_stub_id(self):
         """Default stub_id falls back to check_number."""
         stub = _make_stub(check_number="CHK-FALLBACK")
-        result = reconcile_stub(stub, {})
+        result = reconcile_stub(stub, {}, dispute_window_days=DISPUTE_WINDOW_DAYS,
+                                as_of_date=date(2026, 7, 30))
         assert result.stub_id == "CHK-FALLBACK"
 
     def test_empty_deductions_is_unmatched(self):
@@ -443,7 +491,8 @@ class TestReconciliation:
             net="5000.00",
             deductions=[],
         )
-        result = reconcile_stub(stub, {}, stub_id="rec-empty")
+        result = reconcile_stub(stub, {}, dispute_window_days=DISPUTE_WINDOW_DAYS,
+                                as_of_date=date(2026, 7, 30), stub_id="rec-empty")
 
         assert result.match_status == ReconciliationMatch.UNMATCHED
         assert result.matched_amount == Decimal("0")
@@ -478,7 +527,8 @@ class TestFullFlow:
             "WM-100001": {"amount": Decimal("1200.00"), "date": date(2025, 6, 1)},
         }
         reconciliation = reconcile_stub(
-            stub, reference, stub_id=stub_id, as_of_date=date(2025, 7, 1),
+            stub, reference, dispute_window_days=DISPUTE_WINDOW_DAYS,
+            stub_id=stub_id, as_of_date=date(2025, 7, 1),
         )
         assert reconciliation.match_status == ReconciliationMatch.PARTIAL
 

@@ -16,6 +16,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Optional
 
+import yaml
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
@@ -23,8 +24,6 @@ from fastapi.templating import Jinja2Templates
 from src.extraction.pipeline import extract
 from src.ledger.reconciliation import (
     ANNUAL_TRADE_SPEND,
-    AS_OF_DATE,
-    DISPUTE_WINDOW_DAYS,
     TOTAL_CHARGEBACKS,
     reconcile_stub,
 )
@@ -84,6 +83,15 @@ def _load_reference_invoices() -> dict:
     return invoices
 
 
+def _demo_engagement() -> dict:
+    """The deployed case study IS the demo engagement — its dispute-window date and
+    window length come from engagement.demo.yml (single source of truth), never module
+    constants, so the rendered label and the reconciliation math cannot diverge."""
+    cfg_path = Path(__file__).parent.parent.parent / "engagement.demo.yml"
+    with open(cfg_path) as f:
+        return yaml.safe_load(f)
+
+
 def _scan_stub_filenames() -> list[str]:
     """Return sorted list of all PDF filenames in the stubs directory."""
     if not STUBS_DIR.exists():
@@ -97,6 +105,16 @@ def _process_stubs(filenames: list[str]) -> dict:
     Returns a dict with all data needed to render the report template.
     """
     reference_invoices = _load_reference_invoices()
+
+    # Dispute-window date and window come from the demo engagement config (single
+    # source), not module constants, so the rendered label and the math cannot diverge.
+    # report_date is the reconciliation "as of now"; an old as_of_date-only config
+    # falls back to the data window (config, not a constant).
+    cfg = _demo_engagement()
+    as_of = date.fromisoformat(
+        cfg.get("report_date") or cfg.get("data_as_of") or cfg["as_of_date"]
+    )
+    dispute_window = int(cfg["basis"]["dispute_window_days"])
 
     stubs_data = []
     all_deductions = []
@@ -121,12 +139,14 @@ def _process_stubs(filenames: list[str]) -> dict:
         # Validate
         validation = validate_stub(stub, stub_id=filename)
 
-        # Reconcile against the pinned data-window date, not the live calendar.
+        # Reconcile as of the config's report date (reconciliation "as of now"),
+        # not the live calendar or a module constant.
         reconciliation = reconcile_stub(
             stub,
             reference_invoices,
+            dispute_window_days=dispute_window,
             stub_id=filename,
-            as_of_date=AS_OF_DATE,
+            as_of_date=as_of,
         )
 
         # Track formats
@@ -214,7 +234,7 @@ def _process_stubs(filenames: list[str]) -> dict:
         "within_window": within_window,
         "past_window": past_window,
         "recoverable_total": recoverable_total,
-        "dispute_window_days": DISPUTE_WINDOW_DAYS,
+        "dispute_window_days": dispute_window,
         "annual_trade_spend": ANNUAL_TRADE_SPEND,
         "total_chargebacks": TOTAL_CHARGEBACKS,
     }

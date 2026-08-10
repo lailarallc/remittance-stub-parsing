@@ -71,6 +71,27 @@ The app works without an `ANTHROPIC_API_KEY` — pdfplumber handles extraction a
 
 **Canonical baseline:** 50 SKUs · 5 product lines (AS·PS·SC·DG·SB) · 6 retailers (Walmart·Costco·Whole Foods·Sprouts·Kroger·Regional Group) · 10 channels (6 retail + UNFI·KeHE·DPI + DTC). Cinderhaven is a fictional ~$25M specialty food brand; data is synthetic, methodology and deliverables are real. Reconciliation uses the canonical 3,357 chargebacks and ~$3.6M/yr all-in trade cost from cinderhaven-data-platform.
 
+## Client engagement use
+
+The demo parses the committed Cinderhaven stubs. To parse a **client's own
+remittance PDFs** in place — validated, never committed, never deployed — use
+client mode (see [INPUT-SPEC.md](INPUT-SPEC.md)):
+
+```bash
+pip install -e ../engagement-template/lib      # the shared lailara_engagement scaffold
+python client_mode.py --config engagement.yml --input client-data/stubs/ --out client-output [--final]
+```
+
+Every PDF is detected to a **format plugin** and parsed; a client's own remittance
+format is a config drop-in (`format_configs/<name>.yml` + `reason_codes/<name>.yml`
+in the client config dir — no code change, no enum edit). Deductions are reconciled
+against the client's AR ledger as of the config `as_of_date` (never the wall clock).
+A PDF that matches no format, or a missing ledger, yields a branded **Data Readiness
+Report**. On success, `client-output/` (gitignored) gets a branded, provenance-footed
+(each PDF's SHA-256), DRAFT-watermarked recoverable-deductions summary + `summary.json`.
+Client identity, window, ledger, and format dir come from `engagement.yml` (copy
+[`engagement.demo.yml`](engagement.demo.yml)).
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

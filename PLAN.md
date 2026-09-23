@@ -54,3 +54,9 @@ check again.
 - ~~**Deferred:** Refactor inline onclick handlers to event listeners so CSP can drop 'unsafe-inline'~~ — Resolved 2026-06-08
 - **Dependencies:** 12 CVEs found by pip-audit, all in transitive packages from other projects sharing this venv (flask, aiohttp, pyjwt, werkzeug, diskcache) — none are direct deps of this project
 - **Next review:** 2026-07-08
+
+### 2026-09-23 — Audit (health check only)
+- **Findings:** 0 critical, 7 important, 6 nice-to-have
+- **Top concerns:** Branch client-mode-2026-08 holds 17 unmerged commits (last Aug 8), so main and the live Fly deploy lag it, and HANDOFF.md (last entry 2026-06-25) and this PLAN never recorded the client-mode/CI work. The public demo has unbounded work per request (/report?stubs= accepts any repeat count and re-extracts every PDF uncached; /review extracts synchronously on the event loop and shares one mutable edit cache across all visitors). Demo stub payment dates run to 2026-07-30 while engagement.demo.yml says data_as_of 2026-01-31, and client_mode silently coerces bad ledger amounts to 0 and overwrites duplicate invoices.
+- **Action taken:** Audit only — no fixes this session
+- **Next review:** 2026-12-22

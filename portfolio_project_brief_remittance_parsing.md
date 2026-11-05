@@ -9,7 +9,7 @@
 
 ### 1. The Pain
 
-Every dollar a retailer or distributor pays Cinderhaven arrives with a **remittance advice** — a PDF (or a portal screen they print to PDF) listing what's being paid, what's being deducted, and a reason code for each deduction. Walmart pays an invoice and nets out $4,200 across eleven line items. UNFI remits on a stub with promotional deduction codes that don't match anything in the ERP. KeHE sends a different format again. Costco, different still.
+Every dollar a retailer or distributor pays Cinderhaven arrives with a **remittance advice** — a PDF (or a portal screen they print to PDF) listing what's being paid, what's being deducted, and a reason code for each deduction. The national mass retailer pays an invoice and nets out $4,200 across eleven line items. UNFI remits on a stub with promotional deduction codes that don't match anything in the ERP. KeHE sends a different format again. Costco, different still.
 
 Nobody can act on a PDF. So today someone — usually an AP clerk or the controller — opens each stub, reads the line items, and **manually keys them into a spreadsheet** to figure out: what got paid, what got taken, why, and whether the deduction was legitimate. The data the entire Deduction Recovery analysis depends on is trapped in documents, extracted by hand, one stub at a time.
 

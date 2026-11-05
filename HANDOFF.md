@@ -187,7 +187,7 @@ Committed as `9b74782`, pushed to origin, redeployed to Fly.io. Updated project-
 **Did:**
 1. **Channel-profitability annual framing — COMPLETE.** Full data-layer conversion:
    - `generate_json.py`: Added `YEARS = 3` constant, divided all cumulative values (revenue, deductions, fines, disputes, events, hours) by 3. Added Q1 2027 data to snapshot constants (was in committed trends.json but missing from generator).
-   - `channels.json` / `layers.json`: Now contain annual averages (e.g., Walmart revenue $3.6M/yr not $10.9M)
+   - `channels.json` / `layers.json`: Now contain annual averages (e.g., national mass retailer revenue $3.6M/yr not $10.9M)
    - All 8 MDX narrative sections updated: prose figures match annual data layer
    - `test_prose_data.py`: All 21 expected values updated from cumulative to annual; all 34 checks pass
    - Built, deployed to Cloudflare Pages, pushed to GitHub

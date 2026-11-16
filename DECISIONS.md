@@ -19,6 +19,12 @@ Each entry:
 
 ## Architecture & Pipeline
 
+### 2026-11-16 — Demo stubs, pages and file names show role labels, never real partner names
+- **Why:** The demo generated payment documents headed with four real companies' names and filled with invented Cinderhaven dollar amounts, and the pages repeated those names beside the figures. Owner rule of 2026-11-05: a real partner name never shares a sentence, table row, chart or card with a Cinderhaven dollar figure.
+- **What:** Stub PDF headers and payer names, stub file names (`RetailerFormat.file_slug`), display names (`RetailerFormat.display_name`, `display_name` in each format config), the tour, explore, review and report pages, and the page descriptions all use role labels: national mass retailer, club retailer, distributor A, distributor B.
+- **Kept:** The internal format keys (`walmart`, `costco`, `unfi`, `keHE`), config file names and invoice prefixes are unchanged, so the seed-42 demo figures and the golden did not move.
+- **Do not:** Put a real partner name in a stub header, a stub file name or a template. `tests/test_public_names.py` scans the generated PDFs and every page.
+
 ### 2026-06-08 — Use pure ASGI middleware for response headers, not BaseHTTPMiddleware
 - **Why:** Starlette 1.0.1's `BaseHTTPMiddleware` silently drops headers set via `response.headers[...]` when running through uvicorn (works in TestClient but not in production). A pure ASGI middleware that intercepts `http.response.start` messages and appends header bytes directly is reliable across all transports.
 - **Scope:** app/main.py — CSPMiddleware class and any future response-header middleware

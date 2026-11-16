@@ -27,7 +27,12 @@ from src.ledger.reconciliation import (
     TOTAL_CHARGEBACKS,
     reconcile_stub,
 )
-from src.models import DeductionCategory, ValidationStatus, load_reason_codes
+from src.models import (
+    DeductionCategory,
+    ValidationStatus,
+    load_reason_codes,
+    retailer_display_name,
+)
 from src.validation.reason_codes import validate_stub
 
 logger = logging.getLogger(__name__)
@@ -123,6 +128,7 @@ def _process_stubs(filenames: list[str]) -> dict:
     verified_count = 0
     flagged_count = 0
     formats_seen = set()
+    format_labels = {}
 
     stubs_dir_resolved = STUBS_DIR.resolve()
     for filename in filenames:
@@ -151,6 +157,7 @@ def _process_stubs(filenames: list[str]) -> dict:
 
         # Track formats
         formats_seen.add(stub.retailer.value)
+        format_labels[stub.retailer.value] = retailer_display_name(stub.retailer)
 
         # Track validation counts
         if validation.status == ValidationStatus.VERIFIED:
@@ -224,6 +231,7 @@ def _process_stubs(filenames: list[str]) -> dict:
         "stub_count": len(stubs_data),
         "format_count": len(formats_seen),
         "formats": sorted(formats_seen),
+        "format_labels": [format_labels[f] for f in sorted(formats_seen)],
         "total_deduction_count": total_deduction_count,
         "total_deduction_amount": total_deduction_amount,
         "verified_count": verified_count,

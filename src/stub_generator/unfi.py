@@ -23,8 +23,8 @@ from .base import (
 
 class UnfiStubGenerator(BaseStubGenerator):
     retailer = RetailerFormat.UNFI
-    payer_name = "UNFI Inc."
-    header_title = "UNFI -- DISTRIBUTOR SETTLEMENT STATEMENT"
+    payer_name = "Distributor A"
+    header_title = "DISTRIBUTOR A -- SETTLEMENT STATEMENT"
     invoice_prefix = "UNF"
 
     def render_pdf(self, pdf: FPDF, stub: RemittanceStub) -> None:
@@ -129,7 +129,7 @@ class UnfiStubGenerator(BaseStubGenerator):
         paths = super().generate(output_dir)
 
         # Multi-page stub with 40+ line items
-        multipage_path = output_dir / "unfi_stub_multipage.pdf"
+        multipage_path = output_dir / "distributor_a_stub_multipage.pdf"
         multipage_stub = self.build_multipage_stub(multipage_path)
         self.write_stub_pdf(multipage_stub, multipage_path)
         paths.append(multipage_path)

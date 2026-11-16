@@ -1,5 +1,6 @@
 retailer: unfi
-header_pattern: "UNFI --"
+header_pattern: "DISTRIBUTOR A --"
+display_name: "Distributor A"
 column_mapping:
   invoice_number: 0
   reason_code: 1

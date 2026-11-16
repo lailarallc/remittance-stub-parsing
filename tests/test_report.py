@@ -93,29 +93,29 @@ async def test_report_show_all_uses_economist_voice(client):
 
 @pytest.mark.asyncio
 async def test_report_selected_stubs_returns_200(client):
-    response = await client.get("/report?stubs=walmart_stub_01.pdf,costco_stub_01.pdf")
+    response = await client.get("/report?stubs=mass_retailer_stub_01.pdf,club_retailer_stub_01.pdf")
     assert response.status_code == 200
     assert "Remittance Stub Parsing" in response.text
 
 
 @pytest.mark.asyncio
 async def test_report_selected_stubs_shows_only_those_formats(client):
-    response = await client.get("/report?stubs=walmart_stub_01.pdf,costco_stub_01.pdf&show_all=false")
+    response = await client.get("/report?stubs=mass_retailer_stub_01.pdf,club_retailer_stub_01.pdf&show_all=false")
     assert response.status_code == 200
     text = response.text
     # Should show only 2 stubs processed
-    assert "walmart_stub_01.pdf" in text
-    assert "costco_stub_01.pdf" in text
+    assert "mass_retailer_stub_01.pdf" in text
+    assert "club_retailer_stub_01.pdf" in text
     # Should NOT include UNFI or KeHE stubs in the validation table
-    assert "unfi_stub_01.pdf" not in text
-    assert "keHE_stub_01.pdf" not in text
+    assert "distributor_a_stub_01.pdf" not in text
+    assert "distributor_b_stub_01.pdf" not in text
 
 
 @pytest.mark.asyncio
 async def test_report_single_stub_returns_200(client):
-    response = await client.get("/report?stubs=walmart_stub_01.pdf")
+    response = await client.get("/report?stubs=mass_retailer_stub_01.pdf")
     assert response.status_code == 200
-    assert "walmart_stub_01.pdf" in response.text
+    assert "mass_retailer_stub_01.pdf" in response.text
 
 
 # --- report selector (no params) ---
@@ -134,7 +134,7 @@ async def test_report_selector_lists_available_stubs(client):
     response = await client.get("/report")
     assert response.status_code == 200
     # Should list at least some stub filenames
-    assert "walmart_stub_01.pdf" in response.text
+    assert "mass_retailer_stub_01.pdf" in response.text
 
 
 # --- dollar formatting ---
@@ -176,7 +176,7 @@ async def test_report_pdf_no_stubs_returns_400(client):
 @pytest.mark.asyncio
 async def test_report_pdf_with_stubs_param_returns_response(client):
     """PDF endpoint with specific stubs should return appropriate response."""
-    response = await client.get("/report/pdf?stubs=walmart_stub_01.pdf")
+    response = await client.get("/report/pdf?stubs=mass_retailer_stub_01.pdf")
     # Either a valid PDF or a 503 if WeasyPrint is not installed
     assert response.status_code in (200, 503)
 

@@ -134,7 +134,7 @@ class BaseStubGenerator(ABC):
 
         # Generate 3 clean stubs per retailer
         for i in range(3):
-            filename = f"{self.retailer.value}_stub_{i + 1:02d}.pdf"
+            filename = f"{self.retailer.file_slug}_stub_{i + 1:02d}.pdf"
             output_path = output_dir / filename
             stub = self.build_clean_stub(output_path)
             self.write_stub_pdf(stub, output_path)

@@ -67,7 +67,7 @@ class TestRemittanceStub:
             payment_date=date(2024, 7, 1),
             gross_invoice=Decimal("10000.00"),
             net_cash=Decimal("9500.00"),
-            payer_name="Walmart Inc.",
+            payer_name="National Mass Retailer",
             deductions=[
                 DeductionEntry(
                     invoice_number="INV-001",
@@ -92,7 +92,7 @@ class TestRemittanceStub:
                 payment_date=date(2024, 7, 1),
                 gross_invoice=Decimal("-100.00"),
                 net_cash=Decimal("0"),
-                payer_name="Walmart Inc.",
+                payer_name="National Mass Retailer",
             )
         assert "greater than or equal to 0" in str(exc_info.value)
 
@@ -104,7 +104,7 @@ class TestRemittanceStub:
                 payment_date="not-a-date",
                 gross_invoice=Decimal("1000.00"),
                 net_cash=Decimal("900.00"),
-                payer_name="Walmart Inc.",
+                payer_name="National Mass Retailer",
             )
 
     def test_empty_deductions_list_is_valid(self):
@@ -114,7 +114,7 @@ class TestRemittanceStub:
             payment_date=date(2024, 8, 1),
             gross_invoice=Decimal("5000.00"),
             net_cash=Decimal("5000.00"),
-            payer_name="Costco Wholesale",
+            payer_name="Club Retailer",
         )
         assert stub.deductions == []
 
@@ -125,7 +125,7 @@ class TestRemittanceStub:
             payment_date=date(2024, 9, 1),
             gross_invoice=Decimal("8000.00"),
             net_cash=Decimal("7200.00"),
-            payer_name="UNFI Inc.",
+            payer_name="Distributor A",
         )
         assert stub.source_file is None
 

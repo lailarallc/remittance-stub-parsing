@@ -31,26 +31,26 @@
 
     <p class="report-body">
         {% if format_count == 4 %}
-        The {{ format_count }} remittance formats — {{ formats | join(", ") }} — produced
+        The {{ format_count }} remittance formats — {{ format_labels | join(", ") }} — produced
         {{ total_deduction_count }} deduction entries totaling
         {{ total_deduction_amount | format_currency }}. Each format uses its own
         reason-code taxonomy, column layout, and arithmetic conventions. The pipeline
         normalizes all four into a single typed ledger in under a second per stub.
         {% elif format_count == 1 %}
-        The {{ formats[0] }} format produced {{ total_deduction_count }} deduction entries
+        The {{ format_labels[0] }} format produced {{ total_deduction_count }} deduction entries
         totaling {{ total_deduction_amount | format_currency }}. Even a single format
         contains enough variation in reason codes and line-item structures to
         demonstrate the extraction and validation pipeline.
         {% else %}
-        The {{ format_count }} formats ({{ formats | join(", ") }}) produced
+        The {{ format_count }} formats ({{ format_labels | join(", ") }}) produced
         {{ total_deduction_count }} deduction entries totaling
         {{ total_deduction_amount | format_currency }}.
         {% endif %}
     </p>
 
     <p class="report-footnote">
-        Source: synthetic Cinderhaven Provisions remittance stubs generated to match
-        production-format PDFs from each retailer/distributor. All figures derived
+        Source: synthetic Cinderhaven Provisions remittance stubs in four invented
+        layouts, each standing in for a different trading partner's format. All figures derived
         from automated extraction — no manual keying.
     </p>
 </section>

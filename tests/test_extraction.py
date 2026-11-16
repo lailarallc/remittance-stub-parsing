@@ -63,16 +63,16 @@ class TestParseAmount:
 
 class TestDetectFormat:
     def test_detects_walmart_format(self):
-        assert detect_format(STUBS_DIR / "walmart_stub_01.pdf") == RetailerFormat.WALMART
+        assert detect_format(STUBS_DIR / "mass_retailer_stub_01.pdf") == RetailerFormat.WALMART
 
     def test_detects_costco_format(self):
-        assert detect_format(STUBS_DIR / "costco_stub_01.pdf") == RetailerFormat.COSTCO
+        assert detect_format(STUBS_DIR / "club_retailer_stub_01.pdf") == RetailerFormat.COSTCO
 
     def test_detects_unfi_format(self):
-        assert detect_format(STUBS_DIR / "unfi_stub_01.pdf") == RetailerFormat.UNFI
+        assert detect_format(STUBS_DIR / "distributor_a_stub_01.pdf") == RetailerFormat.UNFI
 
     def test_detects_kehe_format(self):
-        assert detect_format(STUBS_DIR / "keHE_stub_01.pdf") == RetailerFormat.KEHE
+        assert detect_format(STUBS_DIR / "distributor_b_stub_01.pdf") == RetailerFormat.KEHE
 
     def test_raises_on_nonexistent_file(self):
         with pytest.raises(FileNotFoundError):
@@ -91,28 +91,28 @@ class TestDetectFormat:
 
 class TestExtractHeader:
     def test_extracts_walmart_header(self):
-        stub = extract_stub(STUBS_DIR / "walmart_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "mass_retailer_stub_01.pdf")
         assert stub.check_number == "55176955"
         assert stub.payment_date == date(2024, 6, 13)
-        assert stub.payer_name == "Walmart Inc."
+        assert stub.payer_name == "National Mass Retailer"
 
     def test_extracts_costco_header(self):
-        stub = extract_stub(STUBS_DIR / "costco_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "club_retailer_stub_01.pdf")
         assert stub.check_number == "55176955"
         assert stub.payment_date == date(2024, 6, 13)
-        assert stub.payer_name == "Costco Wholesale"
+        assert stub.payer_name == "Club Retailer"
 
     def test_extracts_unfi_header(self):
-        stub = extract_stub(STUBS_DIR / "unfi_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "distributor_a_stub_01.pdf")
         assert stub.check_number == "55176955"
         assert stub.payment_date == date(2024, 6, 13)
-        assert stub.payer_name == "UNFI Inc."
+        assert stub.payer_name == "Distributor A"
 
     def test_extracts_kehe_header(self):
-        stub = extract_stub(STUBS_DIR / "keHE_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "distributor_b_stub_01.pdf")
         assert stub.check_number == "55176955"
         assert stub.payment_date == date(2024, 6, 13)
-        assert stub.payer_name == "KeHE Distributors"
+        assert stub.payer_name == "Distributor B"
 
 
 # --- Totals extraction ---
@@ -120,28 +120,28 @@ class TestExtractHeader:
 
 class TestExtractTotals:
     def test_extracts_walmart_totals(self):
-        stub = extract_stub(STUBS_DIR / "walmart_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "mass_retailer_stub_01.pdf")
         assert stub.gross_invoice == Decimal("18440.23")
         assert stub.net_cash == Decimal("8109.59")
 
     def test_extracts_costco_totals(self):
-        stub = extract_stub(STUBS_DIR / "costco_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "club_retailer_stub_01.pdf")
         assert stub.gross_invoice == Decimal("18440.23")
         assert stub.net_cash == Decimal("8109.59")
 
     def test_extracts_unfi_totals(self):
-        stub = extract_stub(STUBS_DIR / "unfi_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "distributor_a_stub_01.pdf")
         assert stub.gross_invoice == Decimal("18440.23")
         assert stub.net_cash == Decimal("8109.59")
 
     def test_extracts_kehe_totals(self):
-        stub = extract_stub(STUBS_DIR / "keHE_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "distributor_b_stub_01.pdf")
         assert stub.gross_invoice == Decimal("18440.23")
         assert stub.net_cash == Decimal("8109.59")
 
     def test_totals_sum_correct_when_stub_is_clean(self):
         """For a clean stub, gross - net = sum of deduction amounts."""
-        stub = extract_stub(STUBS_DIR / "walmart_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "mass_retailer_stub_01.pdf")
         total_deductions = sum(d.amount for d in stub.deductions)
         assert stub.gross_invoice - stub.net_cash == total_deductions
 
@@ -151,11 +151,11 @@ class TestExtractTotals:
 
 class TestWalmartExtraction:
     def test_extracts_all_line_items(self):
-        stub = extract_stub(STUBS_DIR / "walmart_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "mass_retailer_stub_01.pdf")
         assert len(stub.deductions) == 8
 
     def test_extracts_correct_reason_codes(self):
-        stub = extract_stub(STUBS_DIR / "walmart_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "mass_retailer_stub_01.pdf")
         codes = [d.reason_code for d in stub.deductions]
         assert "24" in codes
         assert "41" in codes
@@ -163,20 +163,20 @@ class TestWalmartExtraction:
         assert "22" in codes
 
     def test_extracts_correct_amounts(self):
-        stub = extract_stub(STUBS_DIR / "walmart_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "mass_retailer_stub_01.pdf")
         amounts = {d.invoice_number: d.amount for d in stub.deductions}
         assert amounts["WM-388389"] == Decimal("165.54")
         assert amounts["WM-207473"] == Decimal("557.22")
         assert amounts["WM-106814"] == Decimal("2848.25")
 
     def test_extracts_invoice_numbers(self):
-        stub = extract_stub(STUBS_DIR / "walmart_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "mass_retailer_stub_01.pdf")
         invoices = [d.invoice_number for d in stub.deductions]
         assert "WM-388389" in invoices
         assert "WM-207473" in invoices
 
     def test_extracts_descriptions(self):
-        stub = extract_stub(STUBS_DIR / "walmart_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "mass_retailer_stub_01.pdf")
         descriptions = [d.reason_description for d in stub.deductions]
         assert any("Quality rejection" in d for d in descriptions)
         assert any("Advertising allowance" in d for d in descriptions)
@@ -187,23 +187,23 @@ class TestWalmartExtraction:
 
 class TestCostcoExtraction:
     def test_extracts_all_line_items(self):
-        stub = extract_stub(STUBS_DIR / "costco_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "club_retailer_stub_01.pdf")
         assert len(stub.deductions) == 8
 
     def test_extracts_parenthesized_amounts_as_positive(self):
         """Costco uses ($X.XX) format -- should be stored as positive."""
-        stub = extract_stub(STUBS_DIR / "costco_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "club_retailer_stub_01.pdf")
         for d in stub.deductions:
             assert d.amount > 0
 
     def test_extracts_correct_amounts_from_deduction_column(self):
         """Costco has both Inv Amount and Deduction columns; we use Deduction."""
-        stub = extract_stub(STUBS_DIR / "costco_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "club_retailer_stub_01.pdf")
         total_deductions = sum(d.amount for d in stub.deductions)
         assert total_deductions == stub.gross_invoice - stub.net_cash
 
     def test_extracts_alpha_reason_codes(self):
-        stub = extract_stub(STUBS_DIR / "costco_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "club_retailer_stub_01.pdf")
         codes = [d.reason_code for d in stub.deductions]
         assert "DM" in codes
         assert "MK" in codes
@@ -215,17 +215,17 @@ class TestCostcoExtraction:
 
 class TestUnfiExtraction:
     def test_extracts_all_line_items(self):
-        stub = extract_stub(STUBS_DIR / "unfi_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "distributor_a_stub_01.pdf")
         assert len(stub.deductions) == 8
 
     def test_uses_total_column_not_unit_price(self):
         """UNFI has Qty, Unit $, and Total columns; we use Total."""
-        stub = extract_stub(STUBS_DIR / "unfi_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "distributor_a_stub_01.pdf")
         total_deductions = sum(d.amount for d in stub.deductions)
         assert total_deductions == stub.gross_invoice - stub.net_cash
 
     def test_extracts_three_letter_codes(self):
-        stub = extract_stub(STUBS_DIR / "unfi_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "distributor_a_stub_01.pdf")
         codes = [d.reason_code for d in stub.deductions]
         assert "OSD" in codes
         assert "VOL" in codes
@@ -237,16 +237,16 @@ class TestUnfiExtraction:
 
 class TestKeheExtraction:
     def test_extracts_all_line_items(self):
-        stub = extract_stub(STUBS_DIR / "keHE_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "distributor_b_stub_01.pdf")
         assert len(stub.deductions) == 8
 
     def test_extracts_correct_amounts(self):
-        stub = extract_stub(STUBS_DIR / "keHE_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "distributor_b_stub_01.pdf")
         total_deductions = sum(d.amount for d in stub.deductions)
         assert total_deductions == stub.gross_invoice - stub.net_cash
 
     def test_extracts_kehe_reason_codes(self):
-        stub = extract_stub(STUBS_DIR / "keHE_stub_01.pdf")
+        stub = extract_stub(STUBS_DIR / "distributor_b_stub_01.pdf")
         codes = [d.reason_code for d in stub.deductions]
         assert "PRO" in codes
         assert "DMG" in codes
@@ -259,13 +259,13 @@ class TestKeheExtraction:
 class TestMultiPageExtraction:
     def test_extracts_tables_across_page_boundaries(self):
         """UNFI multi-page stub should combine tables from all pages."""
-        stub = extract_stub(STUBS_DIR / "unfi_stub_multipage.pdf")
+        stub = extract_stub(STUBS_DIR / "distributor_a_stub_multipage.pdf")
         # Generator creates 40-55 line items for multi-page stubs
         assert len(stub.deductions) >= 40
 
     def test_multipage_amounts_balance(self):
         """Sum of extracted deductions should match gross - net."""
-        stub = extract_stub(STUBS_DIR / "unfi_stub_multipage.pdf")
+        stub = extract_stub(STUBS_DIR / "distributor_a_stub_multipage.pdf")
         total_deductions = sum(d.amount for d in stub.deductions)
         expected = stub.gross_invoice - stub.net_cash
         assert total_deductions == expected, (
@@ -274,7 +274,7 @@ class TestMultiPageExtraction:
 
     def test_multipage_skips_repeated_headers(self):
         """Header rows on subsequent pages should not appear as deductions."""
-        stub = extract_stub(STUBS_DIR / "unfi_stub_multipage.pdf")
+        stub = extract_stub(STUBS_DIR / "distributor_a_stub_multipage.pdf")
         for d in stub.deductions:
             assert d.invoice_number != "Invoice #", (
                 "Header row leaked into deductions"

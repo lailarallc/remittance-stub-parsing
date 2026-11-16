@@ -43,7 +43,7 @@ Point `engagement.yml` at the directory holding these:
 ```yaml
 format_config_dir: "client-data/config"   # defaults to the built-in src/config
 ```
-The four built-in formats (Walmart, Costco, UNFI, KeHE) ship as plugins; a client
+The four built-in formats (national mass retailer, club retailer, distributor A, distributor B) ship as plugins; a client
 who uses them needs no config.
 
 ## 3. Reference AR ledger

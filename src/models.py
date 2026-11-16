@@ -17,16 +17,28 @@ class RetailerFormat(str, Enum):
 
     @property
     def display_name(self) -> str:
-        """Human-facing retailer name.
+        """Public role label for the trading partner.
 
-        Jinja's ``|title`` filter mangles the acronym/camelCase retailers
-        ("unfi" -> "Unfi", "keHE" -> "Kehe"), so templates use this instead.
+        The enum values are internal format keys. Nothing a reader sees (a page,
+        a stub PDF, a file name) uses them: the demo stubs carry invented
+        Cinderhaven figures, so they are shown under role labels, never under a
+        real partner's name (owner rule, 2026-11-05).
         """
         return {
-            "walmart": "Walmart",
-            "costco": "Costco",
-            "unfi": "UNFI",
-            "keHE": "KeHE",
+            "walmart": "National mass retailer",
+            "costco": "Club retailer",
+            "unfi": "Distributor A",
+            "keHE": "Distributor B",
+        }[self.value]
+
+    @property
+    def file_slug(self) -> str:
+        """File-name stem for this format's demo stubs."""
+        return {
+            "walmart": "mass_retailer",
+            "costco": "club_retailer",
+            "unfi": "distributor_a",
+            "keHE": "distributor_b",
         }[self.value]
 
 

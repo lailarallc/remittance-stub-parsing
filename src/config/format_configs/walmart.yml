@@ -1,5 +1,6 @@
 retailer: walmart
-header_pattern: "WALMART INC."
+header_pattern: "NATIONAL MASS RETAILER"
+display_name: "National mass retailer"
 column_mapping:
   invoice_number: 0
   reason_code: 1

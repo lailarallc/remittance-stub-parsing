@@ -45,10 +45,10 @@ async def test_tour_page_returns_200(client):
 async def test_tour_page_has_step_indicators(client):
     response = await client.get("/tour")
     assert response.status_code == 200
-    assert "Walmart" in response.text
-    assert "Costco" in response.text
-    assert "UNFI" in response.text
-    assert "KeHE" in response.text
+    assert "National mass retailer" in response.text
+    assert "Club retailer" in response.text
+    assert "Distributor A" in response.text
+    assert "Distributor B" in response.text
 
 
 @pytest.mark.asyncio
@@ -74,7 +74,7 @@ async def test_tour_step_result_returns_stub_card(client):
 
 @pytest.mark.asyncio
 async def test_tour_broken_step_returns_flagged(client):
-    """Step 5 is the broken Walmart stub -- should show flagged status."""
+    """Step 5 is the broken national mass retailer stub -- should show flagged status."""
     response = await client.get("/tour/step/5/result")
     assert response.status_code == 200
     assert "status-flagged" in response.text
@@ -89,8 +89,8 @@ async def test_explore_page_returns_200_with_stub_list(client):
     assert response.status_code == 200
     assert "Free Exploration" in response.text
     # Should have retailer groups
-    assert "Walmart" in response.text
-    assert "Costco" in response.text
+    assert "National mass retailer" in response.text
+    assert "Club retailer" in response.text
 
 
 @pytest.mark.asyncio
@@ -128,7 +128,7 @@ async def test_review_queue_lists_flagged_stubs(client):
 
 @pytest.mark.asyncio
 async def test_review_detail_shows_flagged_stub(client):
-    response = await client.get("/review/walmart_stub_broken_arithmetic.pdf")
+    response = await client.get("/review/mass_retailer_stub_broken_arithmetic.pdf")
     assert response.status_code == 200
     # Should have the split layout with PDF viewer and form
     assert "split-layout" in response.text
@@ -144,7 +144,7 @@ async def test_review_detail_returns_404_when_missing(client):
 
 @pytest.mark.asyncio
 async def test_review_form_shows_editable_fields(client):
-    response = await client.get("/review/walmart_stub_broken_arithmetic.pdf")
+    response = await client.get("/review/mass_retailer_stub_broken_arithmetic.pdf")
     assert response.status_code == 200
     assert "gross_invoice" in response.text
     assert "net_cash" in response.text
@@ -157,12 +157,12 @@ async def test_review_form_shows_editable_fields(client):
 @pytest.mark.asyncio
 async def test_revalidate_returns_updated_result(client):
     # First, access the detail page to populate the cache
-    detail_resp = await client.get("/review/walmart_stub_broken_arithmetic.pdf")
+    detail_resp = await client.get("/review/mass_retailer_stub_broken_arithmetic.pdf")
     assert detail_resp.status_code == 200
 
     # Submit the form with original values (should still be flagged)
     from app.routes.review import _processed_stubs
-    cached = _processed_stubs["walmart_stub_broken_arithmetic.pdf"]
+    cached = _processed_stubs["mass_retailer_stub_broken_arithmetic.pdf"]
     stub = cached["stub"]
 
     form_data = {
@@ -176,7 +176,7 @@ async def test_revalidate_returns_updated_result(client):
         form_data[f"deduction_{i}_amount"] = str(d.amount)
 
     response = await client.post(
-        "/review/walmart_stub_broken_arithmetic.pdf/revalidate",
+        "/review/mass_retailer_stub_broken_arithmetic.pdf/revalidate",
         data=form_data,
     )
     assert response.status_code == 200
@@ -197,7 +197,7 @@ async def test_revalidate_returns_404_when_stub_missing(client):
 
 @pytest.mark.asyncio
 async def test_pdf_serving_returns_valid_pdf(client):
-    response = await client.get("/stubs/pdf/walmart_stub_01.pdf")
+    response = await client.get("/stubs/pdf/mass_retailer_stub_01.pdf")
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/pdf"
     # PDF files start with %PDF

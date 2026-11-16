@@ -1,5 +1,6 @@
 retailer: keHE
-header_pattern: "KeHE DISTRIBUTORS"
+header_pattern: "DISTRIBUTOR B --"
+display_name: "Distributor B"
 column_mapping:
   invoice_number: 0
   po_number: 1

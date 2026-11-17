@@ -1,0 +1,31 @@
+# Typed figures this repo prints with no canon key (owner, 2026-11-15; plan U19, U22).
+# One row per figure per location. The platform's fleet check holds the row count to a ceiling that only
+# falls: give a figure a key (or stop printing it) and delete its row. listed=yes: the read map names it, and
+# U19 owes its key; listed=no: U22 works it down. Generated from the 2026-11-15 manifest pass.
+file_line	printed	exact_value	meaning	source	kind	listed
+README.md:15	3,357 chargebacks	3357	chargebacks all-time, 36 months	canon chargebacks	restatement	yes
+README.md:72	3,357 chargebacks	3357	chargebacks all-time	canon chargebacks	restatement	yes
+README.md:72	50 SKUs	50	SKU count	canon universe.skus_total	restatement	no
+README.md:72	5 product lines	5	product line count	canon universe.product_lines	restatement	no
+README.md:72	6 retailers	6	retailer count	canon universe.retailers	restatement	no
+README.md:72	10 channels	10	channel count (6 retail + 3 distributors + DTC)	canon universe	restatement	no
+README.md:72	~$25M		company size, annual revenue	prose only	prose-only	no
+app/templates/report/sections/proof.html:101	3,357	3357	chargebacks all-time, 36 months	canon chargebacks (2,873 + 484)	restatement	yes
+app/templates/report/sections/what_this_means.html:3	$25M		company size, annual revenue	prose only	prose-only	no
+docs/canonical_propagation.md:20	$10.7M	10669827.88	all-in trade, 36-month total	canon trade.all_in_total.trailing_36m	restatement	no
+docs/canonical_propagation.md:23	$3,556,609.29/yr	3556609.29	all-in trade annual, trailing 52w	canon trade.all_in_annual.trailing_52w	restatement	no
+docs/canonical_propagation.md:23	$3,177,050.51	3177050.51	structural trade annual (9.83%)	canon trade.structural_annual.trailing_52w	restatement	no
+docs/canonical_propagation.md:23	$379,558.78/yr	379558.78	operational waste annual (1.17%)	canon trade.op_waste_annual.trailing_365d	restatement	no
+docs/canonical_propagation.md:24	$10,669,827.88	10669827.88	all-in trade 36-month total	canon trade.all_in_total.trailing_36m	restatement	no
+docs/canonical_propagation.md:24	$32,323,139.62	32323139.62	retail scan revenue, trailing 52 weeks (= cy2025)	canon revenue.retail_scan.cy2025	restatement	no
+portfolio_project_brief_remittance_parsing.md:49	3,357 chargebacks / 36 months	3357	chargebacks all-time, 36 months	canon chargebacks	restatement	yes
+src/ledger/reconciliation.py:17	3357	3357	chargebacks all-time, 36 months (2,873 retailer + 484 distributor) (rendered at proof.html:96)	constant reconciliation.py:17; canon chargebacks.retailer_count.all_time + distributor_count.all_time	restatement	yes
+tests/test_demo_golden.py:42	15	15	demo remittance stubs parsed	committed synthetic stubs (src/stub_generator/*) via app/routes/report.py	fixed-input	no
+tests/test_demo_golden.py:48	155	155	demo deduction line count across 15 stubs	committed synthetic stubs via app/routes/report.py	fixed-input	no
+tests/test_demo_golden.py:49	"Decimal(""207835.06"")"	207835.06	demo total deduction amount across 15 stubs	committed synthetic stubs via app/routes/report.py	fixed-input	no
+tests/test_demo_golden.py:55	"Decimal(""207338.44"")"	207338.44	demo recoverable total (headline)	committed synthetic stubs + data/cinderhaven_reference.json via report.py	fixed-input	no
+tests/test_demo_golden.py:56	"Decimal(""26173.80"")"	26173.80	demo recoverable within 90-day dispute window	report.py with DISPUTE_WINDOW_DAYS=90 (reconciliation.py:18)	fixed-input	no
+tests/test_demo_golden.py:57	"Decimal(""181164.64"")"	181164.64	demo recoverable past dispute window	report.py	fixed-input	no
+tests/test_demo_golden.py:63	13	13	demo stubs verified against reference invoices	data/cinderhaven_reference.json (18 invoices)	fixed-input	no
+tests/test_report.py:193	3,357	3357	asserts rendered chargeback count	reconciliation.py:17 TOTAL_CHARGEBACKS	restatement	yes
+tests/test_report.py:194	3.6M	3600000	asserts rendered annual trade spend	reconciliation.py:16 ANNUAL_TRADE_SPEND	restatement	yes

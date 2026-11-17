@@ -34,7 +34,7 @@ async def test_landing_page_renders(client):
 async def test_landing_page_has_format_cards(client):
     response = await client.get("/")
     assert response.status_code == 200
-    for retailer in ["Walmart", "Costco", "UNFI", "KeHE"]:
+    for retailer in ["National mass retailer", "Club retailer", "Distributor A", "Distributor B"]:
         assert retailer in response.text
 
 
@@ -76,7 +76,7 @@ async def test_stubs_endpoint_includes_retailer_metadata(client):
         assert "filename" in stub
         assert "retailer" in stub
         assert "is_broken" in stub
-        assert stub["retailer"] in ["Walmart", "Costco", "UNFI", "KeHE", "Unknown"]
+        assert stub["retailer"] in ["National mass retailer", "Club retailer", "Distributor A", "Distributor B", "Unknown"]
 
 
 @pytest.mark.asyncio
@@ -84,8 +84,8 @@ async def test_stubs_endpoint_detects_broken_stubs(client):
     response = await client.get("/stubs")
     stubs = response.json()
     broken = [s for s in stubs if s["is_broken"]]
-    # We know at least walmart_stub_broken_arithmetic and
-    # costco_stub_broken_unmapped_code exist
+    # We know at least mass_retailer_stub_broken_arithmetic and
+    # club_retailer_stub_broken_unmapped_code exist
     assert len(broken) >= 2
 
 
@@ -93,7 +93,7 @@ async def test_stubs_endpoint_detects_broken_stubs(client):
 
 @pytest.mark.asyncio
 async def test_process_returns_result_for_valid_stub(client):
-    response = await client.post("/process/walmart_stub_01.pdf")
+    response = await client.post("/process/mass_retailer_stub_01.pdf")
     assert response.status_code == 200
     # Should return an HTMX partial with stub card content
     assert "stub-card" in response.text
@@ -114,7 +114,7 @@ async def test_process_returns_404_for_non_pdf(client):
 
 @pytest.mark.asyncio
 async def test_process_result_includes_validation_status(client):
-    response = await client.post("/process/walmart_stub_01.pdf")
+    response = await client.post("/process/mass_retailer_stub_01.pdf")
     assert response.status_code == 200
     # The partial should contain a status badge (verified or flagged)
     assert "status-verified" in response.text or "status-flagged" in response.text
@@ -122,7 +122,7 @@ async def test_process_result_includes_validation_status(client):
 
 @pytest.mark.asyncio
 async def test_process_broken_stub_shows_issues(client):
-    response = await client.post("/process/walmart_stub_broken_arithmetic.pdf")
+    response = await client.post("/process/mass_retailer_stub_broken_arithmetic.pdf")
     assert response.status_code == 200
     # Broken arithmetic stub should show flagged status
     assert "status-flagged" in response.text

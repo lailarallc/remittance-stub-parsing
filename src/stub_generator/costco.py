@@ -23,8 +23,8 @@ from .base import (
 
 class CostcoStubGenerator(BaseStubGenerator):
     retailer = RetailerFormat.COSTCO
-    payer_name = "Costco Wholesale"
-    header_title = "COSTCO WHOLESALE -- REMITTANCE DETAIL"
+    payer_name = "Club Retailer"
+    header_title = "CLUB RETAILER -- REMITTANCE DETAIL"
     invoice_prefix = "CS"
 
     def render_pdf(self, pdf: FPDF, stub: RemittanceStub) -> None:
@@ -96,7 +96,7 @@ class CostcoStubGenerator(BaseStubGenerator):
         paths = super().generate(output_dir)
 
         # Broken stub: unmapped reason code
-        broken_path = output_dir / "costco_stub_broken_unmapped_code.pdf"
+        broken_path = output_dir / "club_retailer_stub_broken_unmapped_code.pdf"
         broken_stub = self.build_broken_stub_unmapped_code(broken_path)
         self.write_stub_pdf(broken_stub, broken_path)
         paths.append(broken_path)

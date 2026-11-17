@@ -1,5 +1,6 @@
 retailer: costco
-header_pattern: "COSTCO WHOLESALE"
+header_pattern: "CLUB RETAILER"
+display_name: "Club retailer"
 column_mapping:
   invoice_number: 0
   reason_code: 1

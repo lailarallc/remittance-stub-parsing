@@ -6,7 +6,7 @@ Turns retailer and distributor remittance-advice PDFs into a unified, classified
 
 ## What it does
 
-Multi-format parser covering Walmart, Costco, UNFI, and KeHE — the four formats that account for the majority of specialty food trade spend:
+Multi-format parser covering four trading-partner layouts: a national mass retailer, a club retailer and two distributors. The demo layouts are invented stand-ins, not copies of any company's documents:
 
 - **Hybrid extraction pipeline:** pdfplumber (deterministic, free) runs first; Claude API (structured output via forced tool_choice) runs second when an API key is available. The pipeline picks whichever found more deductions.
 - **Deterministic validation:** net cash + sum(deductions) must equal gross invoice. If it doesn't balance, the stub routes to a human review queue — no model confidence scores involved.

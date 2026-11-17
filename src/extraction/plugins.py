@@ -95,7 +95,8 @@ def _display_name_for(name: str, cfg: dict) -> str:
     if explicit:
         return str(explicit)
     # Built-in acronym/camelCase names keep their casing; others title-case.
-    known = {"walmart": "Walmart", "costco": "Costco", "unfi": "UNFI", "keHE": "KeHE"}
+    known = {"walmart": "National mass retailer", "costco": "Club retailer",
+             "unfi": "Distributor A", "keHE": "Distributor B"}
     return known.get(name, name.replace("_", " ").title())
 
 

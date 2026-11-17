@@ -32,14 +32,14 @@ def _scan_stubs() -> tuple[dict, ...]:
     for pdf in sorted(STUBS_DIR.glob("*.pdf")):
         name = pdf.stem
         name_lower = name.lower()
-        if name_lower.startswith("walmart"):
-            retailer = "Walmart"
-        elif name_lower.startswith("costco"):
-            retailer = "Costco"
-        elif name_lower.startswith("unfi"):
-            retailer = "UNFI"
-        elif name_lower.startswith("kehe"):
-            retailer = "KeHE"
+        if name_lower.startswith("mass_retailer"):
+            retailer = "National mass retailer"
+        elif name_lower.startswith("club_retailer"):
+            retailer = "Club retailer"
+        elif name_lower.startswith("distributor_a"):
+            retailer = "Distributor A"
+        elif name_lower.startswith("distributor_b"):
+            retailer = "Distributor B"
         else:
             retailer = "Unknown"
 

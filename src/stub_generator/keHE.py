@@ -14,8 +14,8 @@ from .base import BaseStubGenerator, sanitize_for_pdf
 
 class KeheStubGenerator(BaseStubGenerator):
     retailer = RetailerFormat.KEHE
-    payer_name = "KeHE Distributors"
-    header_title = "KeHE DISTRIBUTORS -- REMITTANCE ADVICE"
+    payer_name = "Distributor B"
+    header_title = "DISTRIBUTOR B -- REMITTANCE ADVICE"
     invoice_prefix = "KH"
 
     def render_pdf(self, pdf: FPDF, stub: RemittanceStub) -> None:

@@ -254,11 +254,11 @@ class TestExtractWithLlm:
         mock_client = MagicMock()
         mock_client.messages.create.return_value = _make_tool_response([])
 
-        extract_with_llm("WALMART INC. Check #: 55176955", client=mock_client)
+        extract_with_llm("NATIONAL MASS RETAILER Check #: 55176955", client=mock_client)
 
         call_kwargs = mock_client.messages.create.call_args.kwargs
         user_msg = call_kwargs["messages"][0]["content"]
-        assert "WALMART INC. Check #: 55176955" in user_msg
+        assert "NATIONAL MASS RETAILER Check #: 55176955" in user_msg
 
 
 # --- Pipeline ---
@@ -266,7 +266,7 @@ class TestExtractWithLlm:
 
 class TestPipeline:
     def test_returns_pdfplumber_result_when_llm_skipped(self):
-        result = extract(STUBS_DIR / "walmart_stub_01.pdf", skip_llm=True)
+        result = extract(STUBS_DIR / "mass_retailer_stub_01.pdf", skip_llm=True)
         assert isinstance(result, ExtractionResult)
         assert result.method == "pdfplumber"
         assert result.llm_used is False
@@ -276,7 +276,7 @@ class TestPipeline:
 
     def test_returns_pdfplumber_result_when_no_api_key(self):
         with patch.dict(os.environ, {}, clear=True):
-            result = extract(STUBS_DIR / "walmart_stub_01.pdf")
+            result = extract(STUBS_DIR / "mass_retailer_stub_01.pdf")
         assert result.method == "pdfplumber"
         assert result.llm_used is False
         assert any("No ANTHROPIC_API_KEY" in w for w in result.warnings)
@@ -284,7 +284,7 @@ class TestPipeline:
     def test_raises_when_force_llm_and_no_key(self):
         with patch.dict(os.environ, {}, clear=True):
             with pytest.raises(RuntimeError, match="force_llm=True"):
-                extract(STUBS_DIR / "walmart_stub_01.pdf", force_llm=True)
+                extract(STUBS_DIR / "mass_retailer_stub_01.pdf", force_llm=True)
 
     def test_prefers_llm_when_llm_finds_more_deductions(self):
         """When LLM finds more deductions than pdfplumber, use LLM results."""
@@ -303,7 +303,7 @@ class TestPipeline:
 
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "sk-ant-test"}):
             result = extract(
-                STUBS_DIR / "walmart_stub_01.pdf",
+                STUBS_DIR / "mass_retailer_stub_01.pdf",
                 client=mock_client,
             )
 
@@ -330,7 +330,7 @@ class TestPipeline:
 
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "sk-ant-test"}):
             result = extract(
-                STUBS_DIR / "walmart_stub_01.pdf",
+                STUBS_DIR / "mass_retailer_stub_01.pdf",
                 client=mock_client,
             )
 
@@ -354,7 +354,7 @@ class TestPipeline:
 
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "sk-ant-test"}):
             result = extract(
-                STUBS_DIR / "walmart_stub_01.pdf",
+                STUBS_DIR / "mass_retailer_stub_01.pdf",
                 client=mock_client,
             )
 
@@ -372,7 +372,7 @@ class TestPipeline:
 
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "sk-ant-test"}):
             result = extract(
-                STUBS_DIR / "walmart_stub_01.pdf",
+                STUBS_DIR / "mass_retailer_stub_01.pdf",
                 client=mock_client,
             )
 
@@ -397,35 +397,35 @@ class TestPipeline:
 
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "sk-ant-test"}):
             result = extract(
-                STUBS_DIR / "walmart_stub_01.pdf",
+                STUBS_DIR / "mass_retailer_stub_01.pdf",
                 client=mock_client,
             )
 
         # Header fields should still come from pdfplumber
         assert result.stub.check_number == "55176955"
-        assert result.stub.payer_name == "Walmart Inc."
+        assert result.stub.payer_name == "National Mass Retailer"
         assert result.stub.gross_invoice == Decimal("18440.23")
         assert result.stub.net_cash == Decimal("8109.59")
         assert result.stub.retailer == RetailerFormat.WALMART
 
     def test_costco_pipeline_with_skip_llm(self):
-        result = extract(STUBS_DIR / "costco_stub_01.pdf", skip_llm=True)
+        result = extract(STUBS_DIR / "club_retailer_stub_01.pdf", skip_llm=True)
         assert result.stub.retailer == RetailerFormat.COSTCO
         assert result.pdfplumber_count == 8
 
     def test_unfi_pipeline_with_skip_llm(self):
-        result = extract(STUBS_DIR / "unfi_stub_01.pdf", skip_llm=True)
+        result = extract(STUBS_DIR / "distributor_a_stub_01.pdf", skip_llm=True)
         assert result.stub.retailer == RetailerFormat.UNFI
         assert result.pdfplumber_count == 8
 
     def test_kehe_pipeline_with_skip_llm(self):
-        result = extract(STUBS_DIR / "keHE_stub_01.pdf", skip_llm=True)
+        result = extract(STUBS_DIR / "distributor_b_stub_01.pdf", skip_llm=True)
         assert result.stub.retailer == RetailerFormat.KEHE
         assert result.pdfplumber_count == 8
 
     def test_extraction_result_dataclass_fields(self):
         """Verify ExtractionResult has all expected fields with correct defaults."""
-        result = extract(STUBS_DIR / "walmart_stub_01.pdf", skip_llm=True)
+        result = extract(STUBS_DIR / "mass_retailer_stub_01.pdf", skip_llm=True)
         assert hasattr(result, "stub")
         assert hasattr(result, "method")
         assert hasattr(result, "llm_used")

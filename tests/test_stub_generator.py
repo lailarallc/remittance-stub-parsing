@@ -35,7 +35,7 @@ class TestWalmartGeneration:
         # First clean stub should be a valid PDF
         with pdfplumber.open(paths[0]) as pdf:
             text = pdf.pages[0].extract_text()
-            assert "WALMART INC." in text
+            assert "NATIONAL MASS RETAILER" in text
             assert "PAYMENT ADVICE" in text
 
     def test_clean_stub_amounts_balance(self, output_dir: Path):
@@ -60,7 +60,7 @@ class TestCostcoGeneration:
 
         with pdfplumber.open(paths[0]) as pdf:
             text = pdf.pages[0].extract_text()
-            assert "COSTCO WHOLESALE" in text
+            assert "CLUB RETAILER" in text
             assert "REMITTANCE DETAIL" in text
 
     def test_clean_stub_amounts_balance(self, output_dir: Path):
@@ -82,7 +82,7 @@ class TestUnfiGeneration:
 
         with pdfplumber.open(paths[0]) as pdf:
             text = pdf.pages[0].extract_text()
-            assert "UNFI" in text
+            assert "DISTRIBUTOR A" in text
             assert "SETTLEMENT STATEMENT" in text
 
     def test_clean_stub_amounts_balance(self, output_dir: Path):
@@ -130,7 +130,7 @@ class TestKeheGeneration:
 
         with pdfplumber.open(paths[0]) as pdf:
             text = pdf.pages[0].extract_text()
-            assert "KeHE DISTRIBUTORS" in text
+            assert "DISTRIBUTOR B" in text
             assert "REMITTANCE ADVICE" in text
 
     def test_clean_stub_amounts_balance(self, output_dir: Path):

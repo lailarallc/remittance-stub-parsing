@@ -23,32 +23,32 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 TOUR_STEPS = [
     {
         "step": 1,
-        "retailer": "Walmart",
-        "filename": "walmart_stub_01.pdf",
+        "retailer": "National mass retailer",
+        "filename": "mass_retailer_stub_01.pdf",
         "description": "Table-heavy layout with promotional allowances, freight claims, and compliance fines. 9 reason codes mapped across 5 deduction categories.",
     },
     {
         "step": 2,
-        "retailer": "Costco",
-        "filename": "costco_stub_01.pdf",
+        "retailer": "Club retailer",
+        "filename": "club_retailer_stub_01.pdf",
         "description": "Structured two-column layout with volume rebates and warehouse handling deductions. Gross/net reconciliation with multi-line items.",
     },
     {
         "step": 3,
-        "retailer": "UNFI",
-        "filename": "unfi_stub_01.pdf",
+        "retailer": "Distributor A",
+        "filename": "distributor_a_stub_01.pdf",
         "description": "Distributor chargebacks for spoilage, short-ships, and invoice discrepancies. Variable-length line items that sometimes span multiple pages.",
     },
     {
         "step": 4,
-        "retailer": "KeHE",
-        "filename": "keHE_stub_01.pdf",
+        "retailer": "Distributor B",
+        "filename": "distributor_b_stub_01.pdf",
         "description": "Promotional billbacks, new-item slotting fees, and reclamation deductions. Compact single-page format with merged header rows.",
     },
     {
         "step": 5,
-        "retailer": "Walmart (Broken)",
-        "filename": "walmart_stub_broken_arithmetic.pdf",
+        "retailer": "National mass retailer (broken)",
+        "filename": "mass_retailer_stub_broken_arithmetic.pdf",
         "description": "Deliberately broken stub with arithmetic that does not balance. Demonstrates how the validation pipeline flags errors and routes stubs to the review queue.",
     },
 ]

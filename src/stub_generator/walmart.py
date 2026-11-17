@@ -17,8 +17,8 @@ from .base import BaseStubGenerator, quantize_cents, sanitize_for_pdf
 
 class WalmartStubGenerator(BaseStubGenerator):
     retailer = RetailerFormat.WALMART
-    payer_name = "Walmart Inc."
-    header_title = "WALMART INC. -- PAYMENT ADVICE"
+    payer_name = "National Mass Retailer"
+    header_title = "NATIONAL MASS RETAILER -- PAYMENT ADVICE"
     invoice_prefix = "WM"
 
     def render_pdf(self, pdf: FPDF, stub: RemittanceStub) -> None:
@@ -73,7 +73,7 @@ class WalmartStubGenerator(BaseStubGenerator):
         paths = super().generate(output_dir)
 
         # Broken stub: arithmetic discrepancy
-        broken_path = output_dir / "walmart_stub_broken_arithmetic.pdf"
+        broken_path = output_dir / "mass_retailer_stub_broken_arithmetic.pdf"
         broken_stub = self.build_broken_stub_arithmetic(broken_path)
         self.write_stub_pdf(broken_stub, broken_path)
         paths.append(broken_path)
